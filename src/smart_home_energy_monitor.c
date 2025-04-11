@@ -18,6 +18,13 @@ int main() {
 		return -1;
 	}
 
+	srand(time(NULL));
+
+	last_aggregate = time(NULL);
+
+	strftime(start_timestamp, sizeof(start_timestamp), "%Y-%m-%dT%H:%M:%S",
+		 localtime(&last_aggregate));
+
 	// Create threads
 	if (pthread_create(&sensor_thread, NULL, sample_sensor_data, NULL) != 0) {
 		LOG_MSG("Failed to create sensor thread");

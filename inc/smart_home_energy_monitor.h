@@ -9,6 +9,14 @@
 
 #define SQL_DB	"energy_monitor.db"
 
+sqlite3 *db;
+
+time_t last_aggregate;
+
+char start_timestamp[32];
+
+int store_five_minute_aggregate(const char *device_id, const struct tm *tm_interval);
+
 void get_current_timestamp(char *buffer, size_t buffer_size);
 
 int initialize_db();
