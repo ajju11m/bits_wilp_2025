@@ -1,15 +1,13 @@
-#include "smartHome.h"
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
+#include <time.h>
+#include <unistd.h>
+#include "logger.h"
+#include "smart_home_energy_monitor.h"
 
-// Logger configuration
-struct smartHome_logger {
-    FILE *log_file;
-    pthread_mutex_t log_mutex;
-    int initialized;
-}logger;
-
-#define LOGGER_FILE "smart_home_monitor.log"
+struct smartHome_logger logger;
 
 // Initialize logger
 int log_init()

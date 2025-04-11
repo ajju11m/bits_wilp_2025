@@ -1,6 +1,8 @@
-#include "smartHome.h"
+#include "smart_home_energy_monitor.h"
+#include "logger.h"
 
-#define SQL_DB	"energy_monitor.db"
+
+sqlite3 *db;
 
 void get_current_timestamp(char *buffer, size_t buffer_size)
 {

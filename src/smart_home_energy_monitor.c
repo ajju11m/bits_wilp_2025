@@ -1,5 +1,6 @@
-#include "smartHome.h"
 #include <pthread.h>
+#include "smart_home_energy_monitor.h"
+#include "logger.h"
 
 int main() {
 	pthread_t sensor_thread;

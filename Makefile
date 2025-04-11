@@ -1,18 +1,25 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -Iinc
 LDFLAGS = -lsqlite3 -lpthread
 
-SOURCES = main.c db.c smartHome_logger.c sensor_data_sampling.c
+SRC_DIR = src
+SOURCES = $(wildcard $(SRC_DIR)/*.c)
 OBJECTS = $(SOURCES:.c=.o)
 EXECUTABLE = energy_monitor
 
-all: $(SOURCES) $(EXECUTABLE)
+# Default target
+all: $(EXECUTABLE)
 
+# Linking object files into the executable
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
 
-.c.o:
+# Compiling .c files to .o
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Clean up build artifacts
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE)
+
+.PHONY: all clean

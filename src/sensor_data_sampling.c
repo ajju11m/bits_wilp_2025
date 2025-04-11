@@ -1,6 +1,5 @@
-#include "smartHome.h"
-
-#define APPLIANCE_COUNT		3
+#include "smart_home_energy_monitor.h"
+#include "logger.h"
 
 float generate_random_float(float min, float max) {
     return min + ((float)rand() / (float)RAND_MAX) * (max - min);

@@ -5,9 +5,11 @@
 #include <time.h>
 #include <string.h>
 
-void get_current_timestamp(char *buffer, size_t buffer_size);
+#define APPLIANCE_COUNT		3
 
-sqlite3 *db;
+#define SQL_DB	"energy_monitor.db"
+
+void get_current_timestamp(char *buffer, size_t buffer_size);
 
 int initialize_db();
 
@@ -19,12 +21,3 @@ struct sensor_data{
 };
 
 void *sample_sensor_data();
-
-int log_init();
-
-void log_message(const char *format, ...);
-
-#define LOG_MSG(fmt, ...) \
-    log_message(fmt, ##__VA_ARGS__)
-
-void log_close();
