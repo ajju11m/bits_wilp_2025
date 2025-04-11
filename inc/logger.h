@@ -1,5 +1,5 @@
 // Logger configuration
-struct smartHome_logger {
+struct smart_home_logger {
     FILE *log_file;
     pthread_mutex_t log_mutex;
     int initialized;

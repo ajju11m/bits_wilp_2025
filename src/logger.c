@@ -7,7 +7,7 @@
 #include "logger.h"
 #include "smart_home_energy_monitor.h"
 
-struct smartHome_logger logger;
+struct smart_home_logger logger;
 
 // Initialize logger
 int log_init()
