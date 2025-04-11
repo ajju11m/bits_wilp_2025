@@ -67,14 +67,10 @@ int initialize_db()
 	return 0;
 }
 
-int store_reading(const char *device_id, double power_reading)
+int store_reading(struct sensor_data sampled_data)
 {
 	sqlite3_stmt *stmt;
-	char timestamp[64];
 	int rc;
-
-	// Get current timestamp
-	get_current_timestamp(timestamp, sizeof(timestamp));
 
 	// Prepare the SQL statement
 	const char *sql = "INSERT INTO power_readings "
@@ -88,9 +84,9 @@ int store_reading(const char *device_id, double power_reading)
 	}
 
 	// Bind parameters
-	sqlite3_bind_text(stmt, 1, device_id, -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, timestamp, -1, SQLITE_STATIC);
-	sqlite3_bind_double(stmt, 3, power_reading);
+	sqlite3_bind_text(stmt, 1, sampled_data.device_name, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, sampled_data.timestamp, -1, SQLITE_STATIC);
+	sqlite3_bind_double(stmt, 3, sampled_data.power);
 
 	// Execute the statement
 	rc = sqlite3_step(stmt);
