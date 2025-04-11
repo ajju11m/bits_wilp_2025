@@ -2,7 +2,7 @@
 #include "logger.h"
 
 float generate_random_float(float min, float max) {
-    return min + ((float)rand() / (float)RAND_MAX) * (max - min);
+	return min + ((float)rand() / (float)RAND_MAX) * (max - min);
 }
 
 const char* appliances[] = {"TV", "Fridge", "WashingMachine"};

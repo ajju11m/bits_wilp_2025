@@ -17,7 +17,7 @@ int store_reading(const char *device_id, double power_reading);
 
 struct sensor_data{
 	char device_name[50];
-	int power;
+	float power;
 };
 
 void *sample_sensor_data();
