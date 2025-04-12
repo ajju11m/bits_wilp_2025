@@ -1,10 +1,22 @@
-#include <pthread.h>
 #include "smart_home_energy_monitor.h"
 #include "logger.h"
+#include <pthread.h>
+#include <signal.h>
 
-int main() {
+// Signal handler for graceful shutdown
+void handle_signal(int sig)
+{
+	if (sig == SIGINT) {
+		LOG_MSG(" ====== Received shutdown signal. Stopping system gracefully ====== ");
+		system_running = false;
+	}
+}
+
+int main()
+{
 	pthread_t sensor_thread;
 	pthread_t transmission_thread;
+	system_running = true;
 
 	printf("Smart Home Energy Monitoring System\n");
 	printf("===================================\n\n");
@@ -13,6 +25,8 @@ int main() {
 		fprintf(stderr, "Failed to setup logger\n");
 		return -1;
 	}
+
+	signal(SIGINT, handle_signal);
 
 	if (initialize_db()) {
 		LOG_MSG("Failed to initialize Database");
@@ -43,6 +57,14 @@ int main() {
 	pthread_join(sensor_thread, NULL);
 	pthread_join(transmission_thread, NULL);
 	pthread_mutex_destroy(&transmission_queue_lock);
+
+	sqlite3_close(db);
+	LOG_MSG("Database Closed");
+
 	log_close();
+
+	printf("\n===================================\n");
+	printf("Energy Monitoring System shut down\n");
+
 	return 0;
 }

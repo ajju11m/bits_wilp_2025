@@ -31,7 +31,7 @@ void *sample_sensor_data()
 	struct tm *tm_now;
 
 	memset(data_transmission_queue, 0, sizeof(data_transmission_queue));
-	while (1) {
+	while (system_running) {
 		for (i = 0; i < APPLIANCE_COUNT; i++) {
 			strcpy(appliance_data.device_name, appliances[i]);
 			appliance_data.power = generate_random(10, 500);
@@ -62,4 +62,7 @@ void *sample_sensor_data()
 		}
 		sleep(SENSOR_SAMPLING_INTERVAL);  // wait before next reading
 	}
+
+	LOG_MSG("Sensor reading thread terminated");
+	return NULL;
 }

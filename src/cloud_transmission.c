@@ -82,7 +82,7 @@ void *transmit_to_cloud()
 {
 	int ret = 0;
 
-	while (1) {
+	while (system_running) {
 		if (batch_size >= MIN_BATCH_SIZE) {
 			ret = write_data_to_cloud();
 			if (ret < 0) {
@@ -96,4 +96,7 @@ void *transmit_to_cloud()
 			sleep(CLOUD_TRANSMISSION_INTERVAL);
 		}
 	}
+
+	LOG_MSG("Cloud Transmission thread terminated");
+	return NULL;
 }

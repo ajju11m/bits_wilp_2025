@@ -6,6 +6,8 @@
 #include <time.h>
 #include <string.h>
 
+bool system_running;
+
 #define APPLIANCE_COUNT			3
 
 #define SENSOR_SAMPLING_INTERVAL	5
