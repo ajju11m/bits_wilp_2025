@@ -1,1 +1,6 @@
-This repo contains source for BITS WILP Assignments
+This repo contains source for BITS WILP SES Assignment-1 "Smart Home Energy Monitorig System"
+
+
+To Make, run the following command:
+
+	make clean;make
