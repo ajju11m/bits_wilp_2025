@@ -12,6 +12,20 @@ void get_current_timestamp(char *buffer, size_t buffer_size)
     strftime(buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", tm_info);
 }
 
+/**
+ * initialize_db() - Initializes the SQLite database and creates required tables.
+ *
+ * This function opens a connection to the database defined by the macro `SQL_DB`
+ * and ensures that two tables, `power_readings` and `aggregated_readings`,
+ * are created if they do not already exist.
+ *
+ * The `power_readings` table stores individual power readings sampled from
+ * each appliance, while the `aggregated_readings` table is intended to store
+ * five-minute aggregated power data such as average, maximum, minimum values,
+ * and count of readings.
+ *
+ * Return: 0 on successful initialization of the database and tables or -1 is returned.
+ */
 int initialize_db()
 {
 	char *err_msg = 0;
@@ -67,6 +81,16 @@ int initialize_db()
 	return 0;
 }
 
+/**
+ * store_reading() - Stores a single power reading into the database.
+ *
+ * @sampled_data: A populated sensor_data structure containing device name,
+ *                timestamp, and power reading to be persisted into the
+ *                power_readings table.
+ *
+ * Return: 0 on success or -1 to indicate failure.
+ */
+
 int store_reading(struct sensor_data sampled_data)
 {
 	sqlite3_stmt *stmt;
@@ -98,6 +122,16 @@ int store_reading(struct sensor_data sampled_data)
 	return 0;
 }
 
+/**
+ * store_five_minute_aggregate() - Stores 5-minute aggregated sensor data into the database.
+ *
+ * @device_id: Name/identifier of the appliance whose data is being aggregated.
+ *
+ * @tm_interval: A pointer to a struct tm representing the end time of the 5-minute interval.
+ *
+ * Return: 0 on success, including if there are no readings in the interval (i.e., nothing to aggregate)
+ * or -1 upon failures
+ */
 int store_five_minute_aggregate(const char *device_id, const struct tm *tm_interval)
 {
 	sqlite3_stmt *stmt;

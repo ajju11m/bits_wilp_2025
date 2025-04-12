@@ -9,6 +9,21 @@ const char* appliances[] = {"TV", "Fridge", "WashingMachine"};
 
 struct sensor_data appliance_data;
 
+/**
+ * sample_sensor_data() : Continuously samples power consumption data from all appliances,
+ * 			  stores readings in a database, queues them for cloud transmission,
+ *			  and performs 5-minute data aggregation.
+ *
+ * This function is intended to be passed to pthread_create() and runs indefinitely
+ * in a loop. For each appliance:
+ * - It generates random power usage data.
+ * - Timestamps the data.
+ * - Stores it in the database.
+ * - Queues the data for transmission.
+ * Every 5 minutes (or on the first run), it also stores aggregated data.
+ *
+ * Return:  NULL on thread termination (although it runs indefinitely).
+ */
 void *sample_sensor_data()
 {
 	int ret = 0, i;
