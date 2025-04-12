@@ -1,8 +1,10 @@
+#include <pthread.h>
+
 // Logger configuration
 struct smart_home_logger {
-    FILE *log_file;
-    pthread_mutex_t log_mutex;
-    int initialized;
+	FILE *log_file;
+	pthread_mutex_t log_mutex;
+	int initialized;
 };
 
 #define LOGGER_FILE "smart_home_monitor.log"

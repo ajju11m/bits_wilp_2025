@@ -1,12 +1,15 @@
 #include "smart_home_energy_monitor.h"
 #include "logger.h"
 #include <stdarg.h>
-#include <pthread.h>
 
-struct smart_home_logger logger;
+struct smart_home_logger logger = {NULL, PTHREAD_MUTEX_INITIALIZER, 0};
 
 int log_init()
 {
+	if (pthread_mutex_init(&logger.log_mutex, NULL) != 0) {
+		return -1;
+	}
+
 	pthread_mutex_lock(&logger.log_mutex);
 
 	char time_str[32];
@@ -18,6 +21,7 @@ int log_init()
 	logger.log_file = fopen(LOGGER_FILE, "a");
 	if (logger.log_file == NULL) {
 		pthread_mutex_unlock(&logger.log_mutex);
+		pthread_mutex_destroy(&logger.log_mutex);
 		return -1;
 	}
 
@@ -35,7 +39,14 @@ int log_init()
 
 void log_message(const char *format, ...)
 {
+	if (!logger.initialized || logger.log_file == NULL) return;
+
 	pthread_mutex_lock(&logger.log_mutex);
+
+	if (logger.log_file == NULL) {
+		pthread_mutex_unlock(&logger.log_mutex);
+		return;
+	}
 
 	char time_str[32];
 
@@ -73,4 +84,5 @@ void log_close()
 	logger.initialized = 0;
 
 	pthread_mutex_unlock(&logger.log_mutex);
+	pthread_mutex_destroy(&logger.log_mutex);
 }
