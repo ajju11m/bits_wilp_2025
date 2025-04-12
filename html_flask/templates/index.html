@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Energy Monitoring</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            margin: 0 10px;
+            border-radius: 5px;
+        }
+
+        .tab-button:hover {
+            background-color: #45a049;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        input, select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .no-data-message {
+            color: #d9534f;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+<script>
+    // Show correct tab on page load WITHOUT resetting or clearing
+    window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'real-time-tab';
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.style.display = 'none');
+        document.getElementById(activeTab).style.display = 'block';
+    };
+
+    // Function used ONLY when manually switching tabs
+function switchTab(tabName) {
+    const tabs = document.querySelectorAll('.tab-content');
+
+    // Hide all tabs and reset their forms & data
+    tabs.forEach(tab => {
+        tab.style.display = 'none';
+
+        const form = tab.querySelector('form');
+        if (form) form.reset();
+
+        const tableDiv = tab.querySelector('div[id$="-table"]');
+        if (tableDiv) tableDiv.innerHTML = ''; // Clear displayed data
+    });
+
+    // Show selected tab
+    document.getElementById(tabName).style.display = 'block';
+
+    // Clear query parameters (so template doesn't inject previous values)
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('tab', tabName);
+    window.history.pushState({}, '', currentUrl);
+}
+
+
+	// Auto-reset form after submission
+document.addEventListener('DOMContentLoaded', () => {
+    const forms = document.querySelectorAll('form');
+
+    forms.forEach(form => {
+        form.addEventListener('submit', () => {
+            setTimeout(() => {
+                form.reset();
+
+                // Also clear the result table after a short delay
+                const resultTable = form.closest('.tab-content').querySelector('div[id$="-table"]');
+                if (resultTable) {
+                    resultTable.innerHTML = '';
+                }
+            }, 500); // Delay to allow form submission before clearing
+        });
+    });
+});
+
+</script>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Home Energy Monitoring</h1>
+        <div class="tabs">
+            <button class="tab-button" onclick="switchTab('real-time-tab'); resetForm('real-time-form')">Real Time Data</button>
+            <button class="tab-button" onclick="switchTab('aggregate-tab'); resetForm('aggregate-form')">Aggregate Data</button>
+        </div>
+
+        <!-- Real-Time Data Tab -->
+        <div id="real-time-tab" class="tab-content" style="display: {% if active_tab == 'real-time-tab' %}block{% else %}none{% endif %};">
+            <h2>Real Time Data</h2>
+            <form id="real-time-form" action="/fetch_real_time_data?tab=real-time-tab" method="post">
+                <label for="device_id">Select Appliance:</label>
+                <select name="device_id" id="device_id" required>
+							<option value="" {% if not devce_id %}selected{% endif %}>Select an Appliance</option>
+                    <option value="TV" {% if device_id == 'TV' %}selected{% endif %}>TV</option>
+                    <option value="Fridge" {% if device_id == 'Fridge' %}selected{% endif %}>Fridge</option>
+                    <option value="WashingMachine" {% if device_id == 'WashingMachine' %}selected{% endif %}>Washing Machine</option>
+                </select><br><br>
+
+                <label for="date">Date:</label>
+                <input type="date" name="date" value="{{ date }}" required><br><br>
+
+                <button type="submit">Fetch Data</button>
+            </form>
+            <div id="real-time-table">
+                {% if data %}
+                    <table>
+                        <tr>
+                            <th>Appliance</th>
+                            <th>Timestamp</th>
+                            <th>Power consumed</th>
+                        </tr>
+                        {% for row in data %}
+                        <tr>
+                            <td>{{ row.device_id }}</td>
+                            <td>{{ row.timestamp }}</td>
+                            <td>{{ row.power_watts }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <div class="no-data-message">No data available for the selected appliance and date.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Aggregate Data Tab -->
+        <div id="aggregate-tab" class="tab-content" style="display: {% if active_tab == 'aggregate-tab' %}block{% else %}none{% endif %};">
+            <h2>Aggregate Data</h2>
+            <form id="aggregate-form" action="/fetch_aggregate_data?tab=aggregate-tab" method="post">
+                <label for="device_id">Select Appliance:</label>
+                <select name="device_id" id="device_id" required>
+							 <option value="" disabled selected>Select an Appliance</option>
+                    <option value="TV" {% if device_id == 'TV' %}selected{% endif %}>TV</option>
+                    <option value="Fridge" {% if device_id == 'Fridge' %}selected{% endif %}>Fridge</option>
+                    <option value="Washing Machine" {% if device_id == 'Washing Machine' %}selected{% endif %}>Washing Machine</option>
+                </select><br><br>
+
+                <label for="date">Date:</label>
+                <input type="date" name="date" value="{{ date }}" required><br><br>
+
+                <label for="timestamp">Timestamp:</label>
+                <input type="time" name="timestamp" value="{{ timestamp }}" required><br><br>
+
+                <button type="submit">Fetch Data</button>
+            </form>
+<div id="aggregate-table">
+    {% if data %}
+        <table>
+            <tr>
+                <th>Appliance</th>
+                <th>Timestamp</th>
+                <th>Min Power consumed</th>
+						<th>Avg Power consumed</th>
+						<th>Max Power consumed</th>
+                <th>Match Type</th>
+            </tr>
+            <tr>
+                <td>{{ data[0]['device_id'] }}</td>
+                <td>{{ data[0]['timestamp'] }}</td>
+                <td>{{ data[0]['min_power'] }}</td>
+						<td>{{ data[0]['avg_power'] }}</td>
+						<td>{{ data[0]['max_power'] }}</td>
+                <td>
+                    {% if data[0]['exact_match'] %}
+                        Exact Match
+                    {% else %}
+                        Nearest Match
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    {% else %}
+        <div class="no-data-message">No matching data found for the given input.</div>
+    {% endif %}
+</div>
+
+        </div>
+    </div>
+</body>
+</html>
