@@ -39,7 +39,7 @@ struct sensor_data{
 int store_reading(struct sensor_data sampled_data);
 
 pthread_mutex_t transmission_queue_lock;
-struct sensor_data data_transmission_queue[64];
+struct sensor_data data_transmission_queue[256];
 
 int enqueue(struct sensor_data sampled_data, unsigned int pos);
 
