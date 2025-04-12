@@ -3,7 +3,6 @@
 #include "logger.h"
 
 int main() {
-	pthread_mutex_init(&transmission_queue_lock, NULL);
 	pthread_t sensor_thread;
 	pthread_t transmission_thread;
 
@@ -24,15 +23,18 @@ int main() {
 
 	last_aggregate = time(NULL);
 
+	pthread_mutex_init(&transmission_queue_lock, NULL);
+
 	strftime(start_timestamp, sizeof(start_timestamp), "%Y-%m-%dT%H:%M:%S",
 		 localtime(&last_aggregate));
 
-	// Create threads
+	// Create sensor sampling thread
 	if (pthread_create(&sensor_thread, NULL, sample_sensor_data, NULL) != 0) {
 		LOG_MSG("Failed to create sensor thread");
 		return -1;
 	}
 
+	// Create Data Transmission to Cloud thread
 	if (pthread_create(&transmission_thread, NULL, transmit_to_cloud, NULL) != 0) {
 		LOG_MSG("Failed to create sensor thread");
 		return -1;

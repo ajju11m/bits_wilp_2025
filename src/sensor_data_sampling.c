@@ -11,11 +11,13 @@ struct sensor_data appliance_data;
 
 void *sample_sensor_data()
 {
-	int ret = 0;
-	srand(time(NULL));
+	int ret = 0, i;
+	time_t now;
+	struct tm *tm_now;
+
 	memset(data_transmission_queue, 0, sizeof(data_transmission_queue));
 	while (1) {
-		for (int i = 0; i < APPLIANCE_COUNT; i++) {
+		for (i = 0; i < APPLIANCE_COUNT; i++) {
 			strcpy(appliance_data.device_name, appliances[i]);
 			appliance_data.power = generate_random_float(10.0, 500.0);
 			get_current_timestamp(appliance_data.timestamp, sizeof(appliance_data.timestamp));
@@ -31,18 +33,14 @@ void *sample_sensor_data()
 		}
 		batch_size++;
 
-		time_t now = time(NULL);
-		struct tm *tm_now = localtime(&now);
+		now = time(NULL);
+		tm_now = localtime(&now);
 
 		if (last_aggregate == 0 || ((now - last_aggregate) >= 300)) {
-			// Create a temporary tm structure to hold the rounded time
-			char hour_timestamp[20];
-			strftime(hour_timestamp, sizeof(hour_timestamp), "%Y-%m-%dT%H-%M-%S", tm_now);
 
 			// Create aggregates for each sensor
-			for (int i = 0; i < APPLIANCE_COUNT; i++) {
-				// Renamed function to reflect it's now a 10-minute aggregate
-				strcpy(appliance_data.device_name, appliances[i]);
+			for (int j= 0; j < APPLIANCE_COUNT; j++) {
+				strcpy(appliance_data.device_name, appliances[j]);
 				store_five_minute_aggregate(appliance_data.device_name, tm_now);
 			}
 			last_aggregate = now;

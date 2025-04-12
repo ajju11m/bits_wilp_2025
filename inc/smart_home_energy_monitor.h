@@ -41,7 +41,7 @@ struct sensor_data data_transmission_queue[64];
 
 int enqueue(struct sensor_data sampled_data, unsigned int pos);
 
-bool write_data_to_cloud();
+int write_data_to_cloud();
 
 void *sample_sensor_data();
 void *transmit_to_cloud();
