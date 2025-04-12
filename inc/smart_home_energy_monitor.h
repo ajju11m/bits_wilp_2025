@@ -31,7 +31,7 @@ int initialize_db();
 struct sensor_data{
 	char device_name[50];
 	char timestamp[64];
-	float power;
+	int power;
 };
 
 int store_reading(struct sensor_data sampled_data);

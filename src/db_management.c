@@ -32,7 +32,7 @@ int initialize_db()
 				     "id INTEGER PRIMARY KEY AUTOINCREMENT," \
 				     "device_id TEXT NOT NULL," \
 				     "timestamp TEXT NOT NULL," \
-				     "power_watts REAL);";
+				     "power_watts INTEGER);";
 
 	ret = sqlite3_exec(db, sql_create_readings, 0, 0, &err_msg);
 
@@ -48,9 +48,9 @@ int initialize_db()
 				   "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 				   "device_id TEXT NOT NULL,"
 				   "timestamp TEXT NOT NULL,"
-				   "avg_power REAL,"
-				   "max_power REAL,"
-				   "min_power REAL,"
+				   "avg_power INTEGER,"
+				   "max_power INTEGER,"
+				   "min_power INTEGER,"
 				   "readings_count INTEGER);";
 
 	ret = sqlite3_exec(db, sql_create_aggregate, 0, 0, &err_msg);
@@ -84,7 +84,7 @@ int store_reading(struct sensor_data sampled_data)
 
 	sqlite3_bind_text(stmt, 1, sampled_data.device_name, -1, SQLITE_STATIC);
 	sqlite3_bind_text(stmt, 2, sampled_data.timestamp, -1, SQLITE_STATIC);
-	sqlite3_bind_double(stmt, 3, sampled_data.power);
+	sqlite3_bind_int(stmt, 3, sampled_data.power);
 
 	ret = sqlite3_step(stmt);
 	if (ret != SQLITE_DONE) {
@@ -101,7 +101,7 @@ int store_reading(struct sensor_data sampled_data)
 int store_five_minute_aggregate(const char *device_id, const struct tm *tm_interval)
 {
 	sqlite3_stmt *stmt;
-	int ret;
+	int avg_power, max_power, min_power, readings_count, ret;
 	char end_timestamp[32];
 	const char *sql_query = "SELECT AVG(power_watts), MAX(power_watts), MIN(power_watts), COUNT(*) "
 			       "FROM power_readings "
@@ -126,10 +126,10 @@ int store_five_minute_aggregate(const char *device_id, const struct tm *tm_inter
 		return -1;
 	}
 
-	double avg_power = sqlite3_column_double(stmt, 0);
-	double max_power = sqlite3_column_double(stmt, 1);
-	double min_power = sqlite3_column_double(stmt, 2);
-	int readings_count = sqlite3_column_int(stmt, 3);
+	avg_power = sqlite3_column_int(stmt, 0);
+	max_power = sqlite3_column_int(stmt, 1);
+	min_power = sqlite3_column_int(stmt, 2);
+	readings_count = sqlite3_column_int(stmt, 3);
 
 	sqlite3_finalize(stmt);
 
@@ -149,9 +149,9 @@ int store_five_minute_aggregate(const char *device_id, const struct tm *tm_inter
 
 	sqlite3_bind_text(stmt, 1, device_id, -1, SQLITE_STATIC);
 	sqlite3_bind_text(stmt, 2, end_timestamp, -1, SQLITE_STATIC);
-	sqlite3_bind_double(stmt, 3, avg_power);
-	sqlite3_bind_double(stmt, 4, max_power);
-	sqlite3_bind_double(stmt, 5, min_power);
+	sqlite3_bind_int(stmt, 3, avg_power);
+	sqlite3_bind_int(stmt, 4, max_power);
+	sqlite3_bind_int(stmt, 5, min_power);
 	sqlite3_bind_int(stmt, 6, readings_count);
 
 	ret = sqlite3_step(stmt);

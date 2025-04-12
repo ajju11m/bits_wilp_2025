@@ -1,8 +1,8 @@
 #include "smart_home_energy_monitor.h"
 #include "logger.h"
 
-float generate_random_float(float min, float max) {
-	return min + ((float)rand() / (float)RAND_MAX) * (max - min);
+int generate_random(int min, int max) {
+	return min + rand() % (max - min + 1);
 }
 
 const char* appliances[] = {"TV", "Fridge", "WashingMachine"};
@@ -19,9 +19,9 @@ void *sample_sensor_data()
 	while (1) {
 		for (i = 0; i < APPLIANCE_COUNT; i++) {
 			strcpy(appliance_data.device_name, appliances[i]);
-			appliance_data.power = generate_random_float(10.0, 500.0);
+			appliance_data.power = generate_random(10, 500);
 			get_current_timestamp(appliance_data.timestamp, sizeof(appliance_data.timestamp));
-			LOG_MSG("Sampled Data: Appliance - %s Power - %.2f W", appliance_data.device_name, appliance_data.power);
+			LOG_MSG("Sampled Data: Appliance - %s Power - %d W", appliance_data.device_name, appliance_data.power);
 			ret = store_reading(appliance_data);
 			if (ret < 0) {
 				LOG_MSG("Data Store to DB failed");

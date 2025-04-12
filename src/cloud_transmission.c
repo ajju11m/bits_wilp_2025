@@ -57,7 +57,7 @@ int write_data_to_cloud()
 	fprintf(file, "{\n  \"batch\": [\n");
 
 	for (unsigned int i = 0; i < count; i++) {
-		fprintf(file, "    {\"device_id\": \"%s\", \"timestamp\": \"%s\", \"power_watts\": %.2f}",
+		fprintf(file, "    {\"device_id\": \"%s\", \"timestamp\": \"%s\", \"power_watts\": %d}",
 			data_transmission_queue[i].device_name, data_transmission_queue[i].timestamp,
 			data_transmission_queue[i].power);
 
