@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request
 import sqlite3
 
+DB_PATH = "../data/energy_monitor.db"
+
 app = Flask(__name__)
 
 # Function to connect to the SQLite database
 def get_db_connection():
-    conn = sqlite3.connect('energy_monitor 1.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 

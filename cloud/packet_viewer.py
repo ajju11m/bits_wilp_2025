@@ -6,7 +6,7 @@ import threading
 import os
 import re
 
-JSON_FILE = "cloud_transmission.json"
+JSON_FILE = "../data/cloud_transmission.json"
 REFRESH_INTERVAL = 60  # seconds
 ERROR_THRESHOLD = 180  # 3 minutes
 
