@@ -1,5 +1,4 @@
 #include "smart_home_energy_monitor.h"
-#include "logger.h"
 #include <stdarg.h>
 
 struct smart_home_logger logger = {NULL, PTHREAD_MUTEX_INITIALIZER, 0};

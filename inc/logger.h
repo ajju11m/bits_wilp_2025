@@ -7,7 +7,8 @@ struct smart_home_logger {
 	int initialized;
 };
 
-#define LOGGER_FILE "smart_home_monitor.log"
+#define DATA_PATH	"./data"
+#define LOGGER_FILE DATA_PATH"/smart_home_monitor.log"
 
 #define LOG_MSG(fmt, ...) \
     log_message(fmt, ##__VA_ARGS__)

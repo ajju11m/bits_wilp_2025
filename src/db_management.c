@@ -1,5 +1,4 @@
 #include "smart_home_energy_monitor.h"
-#include "logger.h"
 
 void get_current_timestamp(char *buffer, size_t buffer_size)
 {

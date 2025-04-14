@@ -1,6 +1,4 @@
-#include <pthread.h>
 #include "smart_home_energy_monitor.h"
-#include "logger.h"
 
 int enqueue(struct sensor_data sampled_data, unsigned int pos)
 {
@@ -48,7 +46,7 @@ int write_data_to_cloud()
 
 	LOG_MSG("Writing data to cloud with batch size : %u", batch_size);
 
-	FILE *file = fopen("cloud_transmission.json", "a");
+	FILE *file = fopen(CLOUD_JSON, "a");
 	if (file == NULL) {
 		LOG_MSG("Failed to open Cloud JSON transmission file");
 		return -1;

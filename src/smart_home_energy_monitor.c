@@ -1,6 +1,4 @@
 #include "smart_home_energy_monitor.h"
-#include "logger.h"
-#include <pthread.h>
 #include <signal.h>
 
 // Signal handler for graceful shutdown

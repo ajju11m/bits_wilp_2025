@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include "logger.h"
 
 bool system_running;
 
@@ -14,7 +15,8 @@ bool system_running;
 #define CLOUD_TRANSMISSION_INTERVAL	60 /* Transmitting 1 minute of data for every device */
 #define MIN_BATCH_SIZE			(CLOUD_TRANSMISSION_INTERVAL/SENSOR_SAMPLING_INTERVAL)
 
-#define SQL_DB	"energy_monitor.db"
+#define SQL_DB		DATA_PATH"/energy_monitor.db"
+#define CLOUD_JSON	DATA_PATH"/cloud_transmission.json"
 
 unsigned int batch_size;
 
