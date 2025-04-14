@@ -1,5 +1,4 @@
 #include "smart_home_energy_monitor.h"
-#include "logger.h"
 
 int generate_random(int min, int max) {
 	return min + rand() % (max - min + 1);
