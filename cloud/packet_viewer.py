@@ -13,7 +13,7 @@ ERROR_THRESHOLD = 180  # 3 minutes
 class PacketBatchViewer:
     def __init__(self, root):
         self.root = root
-        self.root.title("📦 Smart Energy Batch Packet Viewer")
+        self.root.title("Smart Energy Batch Packet Viewer")
         self.root.geometry("880x550")
         self.current_index = 0
         self.batches = self.load_batches()
@@ -27,14 +27,14 @@ class PacketBatchViewer:
         self.packet_list.pack(padx=10, pady=10)
 
         self.status_label = tk.Label(
-            self.root, text="⌛ Waiting for data...", fg="blue", font=("Segoe UI", 10, "bold")
+            self.root, text="Waiting for data...", fg="blue", font=("Segoe UI", 10, "bold")
         )
         self.status_label.pack(pady=(0, 10))
 
         controls = tk.Frame(self.root)
         controls.pack(pady=5)
-        tk.Button(controls, text="🔄 Refresh", command=self.refresh, width=10).pack(side="left", padx=5)
-        tk.Button(controls, text="❌ Exit", command=self.root.quit, width=10).pack(side="left", padx=5)
+        tk.Button(controls, text="Refresh", command=self.refresh, width=10).pack(side="left", padx=5)
+        tk.Button(controls, text="Exit", command=self.root.quit, width=10).pack(side="left", padx=5)
 
     def load_batches(self):
         if not os.path.exists(JSON_FILE):
@@ -64,11 +64,11 @@ class PacketBatchViewer:
                     self.current_index += 1
                 else:
                     if self.last_received_time is None:
-                        self.update_status("⌛ Waiting for data...", "blue")
+                        self.update_status("Waiting for data...", "blue")
                     elif (now - self.last_received_time) > ERROR_THRESHOLD:
-                        self.update_status("❌ Missing data! No batch received in the last 3 minutes.", "red")
+                        self.update_status("Missing data! No batch received in the last 3 minutes.", "red")
                     else:
-                        self.update_status("⌛ Waiting for next batch...", "orange")
+                        self.update_status("Waiting for next batch...", "orange")
 
                 time.sleep(REFRESH_INTERVAL)
 
@@ -79,9 +79,9 @@ class PacketBatchViewer:
         sent_time = int(batch["transmission_time"])
         sent_time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sent_time))
 
-        # ✅ Status shows only batch number and sent time
+        # Status shows only batch number and sent time
         self.update_status(
-            f"✅ Received batch number {batch_number} (sent at {sent_time_str})",
+            f"Received batch number {batch_number} (sent at {sent_time_str})",
             "green"
         )
         self.root.update_idletasks()
@@ -100,9 +100,9 @@ class PacketBatchViewer:
             for batch in new_data:
                 self.display_batch(batch)
             self.batches.extend(new_data)
-            self.update_status(f"🔄 Refreshed: {len(new_data)} new batch(es) found", "blue")
+            self.update_status(f"Refreshed: {len(new_data)} new batch(es) found", "blue")
         else:
-            self.update_status("ℹ️ No new batches found on refresh.", "gray")
+            self.update_status("No new batches found on refresh.", "gray")
 
     def update_status(self, text, color):
         self.status_label.config(text=text, fg=color)
