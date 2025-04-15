@@ -11,6 +11,18 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def format_timestamp_to_time(timestamp):
+    if isinstance(timestamp, str):
+        # For string timestamps like '2025-04-15T14:01:04'
+        if 'T' in timestamp:
+            return timestamp.split('T')[1]
+        else:
+            # Handle other string formats if needed
+            return timestamp
+    else:
+        # For datetime objects
+        return timestamp.strftime('%H:%M:%S')
+
 @app.route('/')
 def index():
     # Default active tab is 'real-time-tab'
@@ -24,33 +36,51 @@ def fetch_real_time_data():
 
     # Fetch real-time data for the selected appliance and date
     conn = get_db_connection()
-    query = """
-    SELECT device_id, timestamp, power_watts
-    FROM power_readings
-    WHERE device_id = ? AND date(timestamp) = ?
-    """
-    result = conn.execute(query, (device_id, date)).fetchall()
+
+    if device_id == "All":
+        query = """
+        SELECT device_id, timestamp, power_watts
+        FROM power_readings
+        WHERE date(timestamp) = ?
+        ORDER BY timestamp DESC
+        """
+        result = conn.execute(query, (date,)).fetchall()
+    else:
+        query = """
+        SELECT device_id, timestamp, power_watts
+        FROM power_readings
+        WHERE device_id = ? AND date(timestamp) = ?
+        ORDER BY timestamp DESC
+        """
+        result = conn.execute(query, (device_id, date)).fetchall()
+
     conn.close()
-    
-    print("Fetched data:", result)
 
+    # Format the timestamp to only show time (HH:MM:SS)
+    formatted_result = []
+    for row in result:
+        # Assuming row is a dict or a sqlite3.Row
+        formatted_row = dict(row) if hasattr(row, 'keys') else {'device_id': row[0], 'timestamp': row[1], 'power_watts': row[2]}
+        formatted_row['timestamp'] = format_timestamp_to_time(formatted_row['timestamp'])
+        formatted_result.append(formatted_row)
 
-    # Return the result and ensure the active tab is preserved
+    print("Fetched real-time data:", formatted_result)
+
     return render_template(
-    'index.html',
-    data=result,
-    device_id=device_id,
-    date=date,
-    active_tab='real-time-tab'
-)
-
-
+        'index.html',
+        data=formatted_result if formatted_result else None,
+        device_id=device_id,
+        date=date,
+        active_tab='real-time-tab'
+    )
 
 @app.route('/fetch_aggregate_data', methods=['POST'])
 def fetch_aggregate_data():
     device_id = request.form.get('device_id')
     date = request.form.get('date')
     timestamp = request.form.get('timestamp')
+
+    print("requested data", device_id, date, timestamp)
 
     # Query for the exact timestamp first
     conn = get_db_connection()
@@ -82,13 +112,15 @@ def fetch_aggregate_data():
         result['exact_match'] = True
 
     conn.close()
-    
-    print("Fetched data:", result)
 
+    if result:
+        del result['timestamp']
+
+    print("Fetched data:", result)
 
     # Return the result and ensure the active tab is preserved
     return render_template('index.html', 
-                           data=[result] if result else None, 
+                           data=[result] if result else None,
                            device_id=device_id, 
                            date=date, 
                            timestamp=timestamp, 
