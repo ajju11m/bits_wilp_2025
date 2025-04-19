@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Energy Monitoring</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            margin: 0 10px;
+            border-radius: 5px;
+        }
+
+        .tab-button:hover {
+            background-color: #45a049;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-wrapper {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .form-area {
+            flex: 2;
+        }
+
+        .image-container {
+            flex: 1;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        input, select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .no-data-message {
+            color: #d9534f;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+
+<script>
+window.onload = function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab') || 'real-time-tab';
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.style.display = 'none');
+    document.getElementById(activeTab).style.display = 'block';
+};
+
+function switchTab(tabName) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.style.display = 'none';
+        const form = tab.querySelector('form');
+        if (form) form.reset();
+        const tableDiv = tab.querySelector('div[id$="-table"]');
+        if (tableDiv) tableDiv.innerHTML = '';
+    });
+    document.getElementById(tabName).style.display = 'block';
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('tab', tabName);
+    window.history.pushState({}, '', currentUrl);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', () => {
+            setTimeout(() => {
+                form.reset();
+                const resultTable = form.closest('.tab-content').querySelector('div[id$="-table"]');
+                if (resultTable) {
+                    resultTable.innerHTML = '';
+                }
+            }, 500);
+        });
+    });
+});
+</script>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Home Energy Monitoring</h1>
+        <div class="tabs">
+            <button class="tab-button" onclick="switchTab('real-time-tab')">Real Time Data</button>
+            <button class="tab-button" onclick="switchTab('aggregate-tab')">Aggregate Data</button>
+        </div>
+
+        <!-- Real-Time Data Tab -->
+        <div id="real-time-tab" class="tab-content" style="display: {% if active_tab == 'real-time-tab' %}block{% else %}none{% endif %};">
+            <div class="tab-wrapper">
+                <div class="form-area">
+                    <h2>Real Time Data</h2>
+                    <form id="real-time-form" action="/fetch_real_time_data?tab=real-time-tab" method="post">
+                        <label for="device_id">Select Appliance:</label>
+                        <select name="device_id" id="device_id" required>
+                            <option value="" {% if not devce_id %}selected{% endif %}>Select an Appliance</option>
+                            <option value="All" {% if device_id == 'All' %}selected{% endif %}>All</option>
+                            <option value="TV" {% if device_id == 'TV' %}selected{% endif %}>TV</option>
+                            <option value="Fridge" {% if device_id == 'Fridge' %}selected{% endif %}>Fridge</option>
+                            <option value="WashingMachine" {% if device_id == 'WashingMachine' %}selected{% endif %}>Washing Machine</option>
+                        </select><br><br>
+                        <label for="date">Date:</label>
+                        <input type="date" name="date" value="{{ date }}" required><br><br>
+                        <button type="submit">Fetch Data</button>
+                    </form>
+                    <div id="real-time-table">
+                       {% if active_tab == 'real-time-tab' and data %}
+    <table>
+        <thead>
+            <tr>
+                {% if device_id == "All" %}
+                    <th>Appliance</th>
+                {% endif %}
+                <th>Timestamp</th>
+                <th>Power (W)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                {% if device_id == "All" %}
+                    <td>{{ row.device_id }}</td>
+                {% endif %}
+                <td>{{ row.timestamp }}</td>
+                <td>{{ row.power_watts }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="/static/image/Picture.png" alt="Real Time Monitoring">
+                </div>
+            </div>
+        </div>
+
+        <!-- Aggregate Data Tab -->
+        <div id="aggregate-tab" class="tab-content" style="display: {% if active_tab == 'aggregate-tab' %}block{% else %}none{% endif %};">
+		
+            <div class="tab-wrapper">
+                <div class="form-area">
+                    <h2>Aggregate Data</h2>
+                    <form id="aggregate-form" action="/fetch_aggregate_data?tab=aggregate-tab" method="post">
+                        <label for="device_id">Select Appliance:</label>
+                        <select name="device_id" id="device_id" required>
+                            <option value="" disabled selected>Select an Appliance</option>
+                            <option value="TV" {% if device_id == 'TV' %}selected{% endif %}>TV</option>
+                            <option value="Fridge" {% if device_id == 'Fridge' %}selected{% endif %}>Fridge</option>
+                            <option value="WashingMachine" {% if device_id == 'WashingMachine' %}selected{% endif %}>Washing Machine</option>
+                        </select><br><br>
+                        <label for="date">Date:</label>
+                        <input type="date" name="date" value="{{ date }}" required><br><br>
+                        <label for="timestamp">Timestamp:</label>
+                        <input type="time" name="timestamp" value="{{ timestamp }}" required><br><br>
+                        <button type="submit">Fetch Data</button>
+                    </form>
+                    <div id="aggregate-table">
+                        {% if active_tab == 'aggregate-tab' and data %}
+    <table>
+        <thead>
+            <tr>
+                <th>Min Power (W)</th>
+                <th>Avg Power (W)</th>
+                <th>Max Power (W)</th>
+                <th>Match Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>{{ row.min_power }}</td>
+                <td>{{ row.avg_power }}</td>
+                <td>{{ row.max_power }}</td>
+                <td>
+                    {% if row.exact_match %}
+                        Exact
+                    {% else %}
+                        Nearest
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="/static/image/Picture.png" alt="Aggregate Monitoring">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
